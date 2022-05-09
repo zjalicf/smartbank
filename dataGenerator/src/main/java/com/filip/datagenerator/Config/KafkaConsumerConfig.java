@@ -20,7 +20,7 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    public Map<String, Object> consumerConfig() {
+    public Map<String, Object> accountConsumerConfig() {
         HashMap<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); //za sad String
@@ -31,7 +31,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, Account> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfig());
+        return new DefaultKafkaConsumerFactory<>(accountConsumerConfig());
     }
 
     @Bean
