@@ -1,19 +1,23 @@
-package com.filip.smartbank.Model;
+package com.filip.datagenerator.Model;
+
+import com.filip.datagenerator.Status;
 
 import java.util.UUID;
 
-public class TransactionRequest {
+public class Transaction {
 
     private UUID transactionId;
     private UUID requesterId;
     private UUID receiverId; //ako je null znam da je offline
     private double amount;
+    private Status status;
 
-    public TransactionRequest(UUID transactionId, UUID requesterId, UUID receiverId, double amount) {
+    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status) {
         this.transactionId = transactionId;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
+        this.status = status;
     }
 
     public UUID getTransactionId() {
@@ -48,6 +52,14 @@ public class TransactionRequest {
         this.amount = amount;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "TransactionRequest{" +
@@ -55,6 +67,7 @@ public class TransactionRequest {
                 ", requesterId=" + requesterId +
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +
+                ", status=" + status +
                 '}';
     }
 }

@@ -1,10 +1,10 @@
-package com.filip.smartbank.Service;
+package com.filip.datagenerator.Service;
 
-import com.filip.smartbank.Model.TransactionRequest;
+import java.util.concurrent.ExecutionException;
 
 public interface DataGenerator {
 
-    void insertAccounts();
+    void insertAccounts() throws ExecutionException, InterruptedException;
     void generateOnlineTransaction() throws InterruptedException;
     void generateOfflineTransaction() throws InterruptedException;
 }
