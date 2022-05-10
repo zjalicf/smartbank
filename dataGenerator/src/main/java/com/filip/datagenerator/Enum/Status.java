@@ -1,4 +1,4 @@
-package com.filip.datagenerator;
+package com.filip.datagenerator.Enum;
 
 public enum Status {
     WAITING,

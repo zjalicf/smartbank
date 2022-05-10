@@ -19,4 +19,10 @@ public class KafkaTopicConfig {
         return TopicBuilder.name("bank_working")
                 .build();
     }
+
+    @Bean
+    public NewTopic transactionTopic() {
+        return TopicBuilder.name("transaction_request")
+                .build();
+    }
 }

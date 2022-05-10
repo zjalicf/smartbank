@@ -1,6 +1,5 @@
 package com.filip.datagenerator;
 
-import com.filip.datagenerator.Model.Account;
 import com.filip.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,7 +16,8 @@ public class KafkaListeners {
 
     @KafkaListener(
             topics = "bank_working",
-            groupId = "groupId"
+            groupId = "groupId",
+            containerFactory= "bankKafkaListenerContainerFactory"
     )
     void bankStatusListener(final String data) {
 
@@ -45,13 +45,5 @@ public class KafkaListeners {
                 e.printStackTrace();
             }
         }
-    }
-
-    @KafkaListener(
-            topics = "account",
-            groupId = "groupId"
-    )
-    void accountListener(final Account account) {
-        System.out.println("received account= " + account);
     }
 }

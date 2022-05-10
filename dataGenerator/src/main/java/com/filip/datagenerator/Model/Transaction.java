@@ -1,15 +1,25 @@
 package com.filip.datagenerator.Model;
 
-import com.filip.datagenerator.Status;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.filip.datagenerator.Enum.Status;
 
 import java.util.UUID;
 
 public class Transaction {
 
+    @JsonProperty
     private UUID transactionId;
+
+    @JsonProperty
     private UUID requesterId;
+
+    @JsonProperty
     private UUID receiverId; //ako je null znam da je offline
+
+    @JsonProperty
     private double amount;
+
+    @JsonProperty
     private Status status;
 
     public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status) {
@@ -17,46 +27,6 @@ public class Transaction {
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
-        this.status = status;
-    }
-
-    public UUID getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(UUID transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public UUID getRequesterId() {
-        return requesterId;
-    }
-
-    public void setRequesterId(UUID requesterId) {
-        this.requesterId = requesterId;
-    }
-
-    public UUID getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(UUID receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
         this.status = status;
     }
 
