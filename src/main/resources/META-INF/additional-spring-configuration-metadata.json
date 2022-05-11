@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "ONLINE_TRANSACTION_UPPER_LIMIT",
+      "type": "java.lang.Integer",
+      "description": "Upper limit (in ms) for online transaction."
+    },
+    {
+      "name": "OFFLINE_TRANSACTION_UPPER_LIMIT",
+      "type": "java.lang.String",
+      "description": "Upper limit (in ms) for offline transaction."
+    }
+  ] }

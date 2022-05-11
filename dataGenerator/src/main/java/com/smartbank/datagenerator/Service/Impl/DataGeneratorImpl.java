@@ -1,10 +1,10 @@
-package com.filip.datagenerator.Service.Impl;
+package com.smartbank.datagenerator.Service.Impl;
 
-import com.filip.datagenerator.Enum.Status;
-import com.filip.datagenerator.KafkaSenders;
-import com.filip.datagenerator.Model.Account;
-import com.filip.datagenerator.Model.Transaction;
-import com.filip.datagenerator.Service.DataGenerator;
+import com.smartbank.datagenerator.Enum.Status;
+import com.smartbank.datagenerator.KafkaSenders;
+import com.smartbank.datagenerator.Model.Account;
+import com.smartbank.datagenerator.Model.Transaction;
+import com.smartbank.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class DataGeneratorImpl implements DataGenerator {
@@ -25,7 +24,7 @@ public class DataGeneratorImpl implements DataGenerator {
     KafkaSenders sender;
 
     @Override
-    public void insertAccounts() throws ExecutionException {
+    public void insertAccounts() {
         int n = 0;
         while (n < 21) { // TODO: 10001
             List<Transaction> tlist = new ArrayList<>();

@@ -1,4 +1,4 @@
-package com.filip.datagenerator.Model;
+package com.smartbank.datagenerator.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

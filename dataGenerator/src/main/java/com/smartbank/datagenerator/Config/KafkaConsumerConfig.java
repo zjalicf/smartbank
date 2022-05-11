@@ -1,6 +1,6 @@
-package com.filip.datagenerator.Config;
+package com.smartbank.datagenerator.Config;
 
-import com.filip.datagenerator.Model.Account;
+import com.smartbank.datagenerator.Model.Account;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;

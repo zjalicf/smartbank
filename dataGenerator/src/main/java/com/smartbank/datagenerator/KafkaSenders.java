@@ -1,7 +1,7 @@
-package com.filip.datagenerator;
+package com.smartbank.datagenerator;
 
-import com.filip.datagenerator.Model.Account;
-import com.filip.datagenerator.Model.Transaction;
+import com.smartbank.datagenerator.Model.Account;
+import com.smartbank.datagenerator.Model.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

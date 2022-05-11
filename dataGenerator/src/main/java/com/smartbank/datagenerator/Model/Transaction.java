@@ -1,7 +1,7 @@
-package com.filip.datagenerator.Model;
+package com.smartbank.datagenerator.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.filip.datagenerator.Enum.Status;
+import com.smartbank.datagenerator.Enum.Status;
 
 import java.util.UUID;
 

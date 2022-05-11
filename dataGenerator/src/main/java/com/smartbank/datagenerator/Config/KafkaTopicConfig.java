@@ -1,4 +1,4 @@
-package com.filip.datagenerator.Config;
+package com.smartbank.datagenerator.Config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +21,7 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic transactionTopic() {
+    public NewTopic transactionRequestTopic() {
         return TopicBuilder.name("transaction_request")
                 .build();
     }

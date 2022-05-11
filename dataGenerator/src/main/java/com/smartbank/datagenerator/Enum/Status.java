@@ -1,4 +1,4 @@
-package com.filip.datagenerator.Enum;
+package com.smartbank.datagenerator.Enum;
 
 public enum Status {
     WAITING,

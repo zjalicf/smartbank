@@ -1,8 +1,10 @@
-package com.filip.datagenerator.Controller;
+package com.smartbank.datagenerator.Controller;
 
-import com.filip.datagenerator.Service.DataGenerator;
+import com.smartbank.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +14,7 @@ import java.security.SecureRandom;
 import java.util.concurrent.ExecutionException;
 
 @Component
+@EnableScheduling
 public class dataGeneratorController {
 
     @Autowired
@@ -21,11 +24,12 @@ public class dataGeneratorController {
     Integer limit;
 
     @PostConstruct
-    public void test() throws ExecutionException, InterruptedException {
+    public void insert() throws ExecutionException, InterruptedException {
         dataGenerator.insertAccounts();
     }
 
-    @Scheduled(fixedRate = 1) //boze sacuvaj
+    @Async
+    @Scheduled(fixedRate = 5000) //boze sacuvaj
     @PostMapping("/online-transaction")
     public void sendOnlineTransaction() throws InterruptedException {
 

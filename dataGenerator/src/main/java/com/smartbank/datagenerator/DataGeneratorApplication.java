@@ -1,6 +1,6 @@
-package com.filip.datagenerator;
+package com.smartbank.datagenerator;
 
-import com.filip.datagenerator.Service.DataGenerator;
+import com.smartbank.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +14,5 @@ public class DataGeneratorApplication {
     public static void main(String[] args) {
         SpringApplication.run(DataGeneratorApplication.class, args);
     }
-
 
 }

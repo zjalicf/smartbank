@@ -1,4 +1,4 @@
-package com.filip.datagenerator.Service;
+package com.smartbank.datagenerator.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.ExecutionException;
