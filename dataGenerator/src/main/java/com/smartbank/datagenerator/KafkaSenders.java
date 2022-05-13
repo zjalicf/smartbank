@@ -13,6 +13,9 @@ public class KafkaSenders {
     @Value("${account.topic}")
     private String accountTopic;
 
+    @Value("${transaction_request.topic}")
+    private String transaction_requestTopic;
+
     @Autowired
     private KafkaTemplate<String, Account> accountKafkaTemplate;
 
@@ -20,10 +23,10 @@ public class KafkaSenders {
     private KafkaTemplate<String, Transaction> transactionKafkaTemplate;
 
     public void sendAccount(Account account) {
-        accountKafkaTemplate.send("account", account);
+        accountKafkaTemplate.send(accountTopic, account);
     }
 
     public void sendTransaction(Transaction transaction) {
-        transactionKafkaTemplate.send("transaction_request", transaction);
+        transactionKafkaTemplate.send(transaction_requestTopic, transaction);
     }
 }

@@ -3,6 +3,7 @@ package com.smartbank.datagenerator.Controller;
 import com.smartbank.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,24 +21,14 @@ public class dataGeneratorController {
     @Autowired
     DataGenerator dataGenerator;
 
-    @Value("${ONLINE_TRANSACTION_UPPER_LIMIT}")
-    Integer limit;
-
     @PostConstruct
     public void insert() throws ExecutionException, InterruptedException {
         dataGenerator.insertAccounts();
     }
 
-    @Async
-    @Scheduled(fixedRate = 5000) //boze sacuvaj
-    @PostMapping("/online-transaction")
+    @DependsOn("insert")
+    @PostConstruct
     public void sendOnlineTransaction() throws InterruptedException {
-
         dataGenerator.generateOnlineTransaction();
-
-        SecureRandom secureRandom = new SecureRandom();
-        int randomMs = secureRandom.nextInt(limit); // 300
-
-        Thread.sleep(randomMs);
     }
 }

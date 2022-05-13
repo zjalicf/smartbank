@@ -2,14 +2,22 @@ package com.smartbank.datagenerator;
 
 import com.smartbank.datagenerator.Service.DataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
+import java.util.logging.Logger;
 
 @Component
 public class KafkaListeners {
 
     private static Thread offlineTxWork;
-    private static boolean working = false;
+    private static final Logger logger = Logger.getLogger(String.valueOf(KafkaListeners.class));
+    private static boolean workingBool = false;
+    private static final String working = "working";
+
+    @Value("${default.groupId}")
+    private String defaultGroupId;
 
     @Autowired
     DataGenerator dataGenerator;
@@ -23,10 +31,10 @@ public class KafkaListeners {
 
         System.out.println("Listener says: " + data);
 
-        if (offlineTxWork == null && "working".equals(data)) {
-            working = true;
+        if (offlineTxWork == null && working.equals(data)) {
+            workingBool = true;
             offlineTxWork = new Thread(() -> {
-                while (working) {
+                while (workingBool) {
                     try {
                         dataGenerator.generateOfflineTransaction();
                     } catch (InterruptedException e) {
@@ -35,11 +43,11 @@ public class KafkaListeners {
                 }
             });
             offlineTxWork.start();
-        } else if (offlineTxWork != null && !"working".equals(data)) {
-            working = false;
+        } else if (offlineTxWork != null && !working.equals(data)) {
+            workingBool = false;
             try {
                 offlineTxWork.join();
-                System.out.println("Stopped: offlineTxWork");
+                logger.info("Stopped: offlineTxWork");
                 offlineTxWork = null;
             } catch (InterruptedException e) {
                 e.printStackTrace();

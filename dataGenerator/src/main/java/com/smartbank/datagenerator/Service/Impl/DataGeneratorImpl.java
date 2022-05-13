@@ -1,6 +1,7 @@
 package com.smartbank.datagenerator.Service.Impl;
 
 import com.smartbank.datagenerator.Enum.Status;
+import com.smartbank.datagenerator.Enum.TransactionType;
 import com.smartbank.datagenerator.KafkaSenders;
 import com.smartbank.datagenerator.Model.Account;
 import com.smartbank.datagenerator.Model.Transaction;
@@ -13,12 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class DataGeneratorImpl implements DataGenerator {
 
+    @Value("${ONLINE_TRANSACTION_UPPER_LIMIT}")
+    Integer onlineLimit;
+
     @Value("${OFFLINE_TRANSACTION_UPPER_LIMIT}")
-    Integer limit;
+    Integer offlineLimit;
 
     @Autowired
     KafkaSenders sender;
@@ -26,9 +33,9 @@ public class DataGeneratorImpl implements DataGenerator {
     @Override
     public void insertAccounts() {
         int n = 0;
-        while (n < 21) { // TODO: 10001
+        while (n < 10001) {
             List<Transaction> tlist = new ArrayList<>();
-            Random random = new Random(505000);
+            Random random = new Random(405000);
             double amount = 15000 + random.nextDouble();
             Account a = new Account(UUID.randomUUID(), UUID.randomUUID(), amount, tlist, true);
             sender.sendAccount(a);
@@ -37,23 +44,33 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     @Override
-    public void generateOfflineTransaction() throws InterruptedException {
+    public void generateOfflineTransaction() {
 
-        int n = 0;
-        while (n != 3) {
-            Transaction transaction = new Transaction(UUID.randomUUID(),
-                    UUID.randomUUID(), null, 0.0, Status.WAITING);
-            n++;
-            sender.sendTransaction(transaction);
-        }
-        Thread.sleep(2000); // TODO: 500
+        Runnable onlineRunnable = () -> {
+            int n = 0;
+            while (n != 3) {
+                Random random = new Random(1);
+                Transaction transaction = new Transaction(UUID.randomUUID(), UUID.randomUUID(), null,
+                        0.0, Status.WAITING, TransactionType.values()[random.nextInt()]); /* randomly sets transaction to be deposit or withdraw*/
+                n++;
+                sender.sendTransaction(transaction);
+            }
+        };
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(onlineRunnable, 0, offlineLimit, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void generateOnlineTransaction() {
 
-        Transaction transaction = new Transaction(UUID.randomUUID(),
-                UUID.randomUUID(), UUID.randomUUID(), 0.0, Status.WAITING);
-        sender.sendTransaction(transaction);
+        Runnable onlineRunnable = () -> {
+            Transaction transaction = new Transaction(UUID.randomUUID(),
+                    UUID.randomUUID(), UUID.randomUUID(), 0.0, Status.WAITING, null);
+            sender.sendTransaction(transaction);
+        };
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(onlineRunnable, 0, onlineLimit, TimeUnit.MILLISECONDS);
     }
 }

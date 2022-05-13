@@ -2,6 +2,7 @@ package com.smartbank.datagenerator.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartbank.datagenerator.Enum.Status;
+import com.smartbank.datagenerator.Enum.TransactionType;
 
 import java.util.UUID;
 
@@ -22,7 +23,7 @@ public class Transaction {
     @JsonProperty
     private Status status;
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status) {
+    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status, TransactionType value) {
         this.transactionId = transactionId;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
