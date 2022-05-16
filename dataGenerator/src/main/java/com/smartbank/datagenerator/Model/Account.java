@@ -17,18 +17,18 @@ public class Account {
     private double amount;
 
     @JsonProperty
-    private List<Transaction> tList;
+    private List<Transaction> transactionList;
 
     @JsonProperty
     private boolean isActive;
 
     public Account() {}
 
-    public Account(UUID accountId, UUID clientId, double amount, List<Transaction> tList, boolean isActive) {
+    public Account(UUID accountId, UUID clientId, double amount, List<Transaction> transactionList, boolean isActive) {
         this.accountId = accountId;
         this.clientId = clientId;
         this.amount = amount;
-        this.tList = tList;
+        this.transactionList = transactionList;
         this.isActive = isActive;
     }
 
@@ -52,12 +52,12 @@ public class Account {
         this.amount = amount;
     }
 
-    public List<Transaction> gettList() {
-        return tList;
+    public List<Transaction> getTransactionList() {
+        return transactionList;
     }
 
-    public void settList(List<Transaction> tList) {
-        this.tList = tList;
+    public void setTransactionList(List<Transaction> transactionList) {
+        this.transactionList = transactionList;
     }
 
     public boolean isActive() {
@@ -74,7 +74,7 @@ public class Account {
                 "accountId=" + accountId +
                 ", clientId=" + clientId +
                 ", amount=" + amount +
-                ", tList=" + tList +
+                ", transactionList=" + transactionList +
                 ", isActive=" + isActive +
                 '}';
     }

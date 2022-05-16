@@ -26,23 +26,23 @@ public class DataGeneratorImpl implements DataGenerator {
     @Value("${OFFLINE_TRANSACTION_UPPER_LIMIT}")
     Integer offlineLimit;
 
-    @Value("{MAX_ACCOUNTS}")
+    @Value("${MAX_ACCOUNTS}")
     Integer maxAccounts;
 
     @Autowired
     KafkaSenders kafkaSender;
 
-    private static List<Account> accountList = new LinkedList<>();
+    private static List<Account> ACCOUNT_LIST = new LinkedList<>();
 
     @Override
     public void insertAccounts() {
         int n = 0;
         while (n < maxAccounts) {
-            List<Transaction> tlist = new ArrayList<>();
+            List<Transaction> transationList = new ArrayList<>();
             Random random = new Random();
             double amount = (5000) * random.nextDouble();
-            Account a = new Account(UUID.randomUUID(), UUID.randomUUID(), amount, tlist, true);
-            accountList.add(a);
+            Account a = new Account(UUID.randomUUID(), UUID.randomUUID(), amount, transationList, true);
+            ACCOUNT_LIST.add(a);
             kafkaSender.sendAccount(a);
             n++;
         }
@@ -70,24 +70,23 @@ public class DataGeneratorImpl implements DataGenerator {
     @DependsOn("insertAccounts")
     public void generateOnlineTransaction() {
 
-        Runnable onlineRunnable = () -> {
-            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
-            int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
-
-            Account senderAcc = accountList.get(sender);
-            Account receiverAcc = accountList.get(receiver);
-//            accountList.remove(0);
-//            accountList.remove(1);
-            if (senderAcc.getAccountId() != receiverAcc.getAccountId()) {
-                double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
-                Transaction transaction = new Transaction(UUID.randomUUID(),
-                        senderAcc.getAccountId(), receiverAcc.getAccountId(), rounder(amount), Status.WAITING, null);
-                kafkaSender.sendTransaction(transaction);
-            }
-        };
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(onlineRunnable, 0, onlineLimit, TimeUnit.MILLISECONDS);
+        System.out.println("online disabled");
+//        Runnable onlineRunnable = () -> {
+//            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+//            int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+//
+//            Account senderAcc = ACCOUNT_LIST.get(sender);
+//            Account receiverAcc = ACCOUNT_LIST.get(receiver);
+//            if (senderAcc.getAccountId() != receiverAcc.getAccountId()) {
+//                double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
+//                Transaction transaction = new Transaction(UUID.randomUUID(),
+//                        senderAcc.getAccountId(), receiverAcc.getAccountId(), rounder(amount), Status.WAITING, null);
+//                kafkaSender.sendTransaction(transaction);
+//            }
+//        };
+//
+//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//        executor.scheduleAtFixedRate(onlineRunnable, 0, onlineLimit, TimeUnit.MILLISECONDS);
     }
 
     public double rounder(double amount) {
