@@ -32,6 +32,42 @@ public class Account {
         this.isActive = isActive;
     }
 
+    public UUID getAccountId() {
+        return accountId;
+    }
+
+    public UUID getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public List<Transaction> gettList() {
+        return tList;
+    }
+
+    public void settList(List<Transaction> tList) {
+        this.tList = tList;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
     @Override
     public String toString() {
         return "Account{" +

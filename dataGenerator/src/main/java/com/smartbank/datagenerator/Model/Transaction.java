@@ -15,7 +15,8 @@ public class Transaction {
     private UUID requesterId;
 
     @JsonProperty
-    private UUID receiverId; //ako je null znam da je offline
+    private UUID receiverId; // null values indicates offline transaction, however status
+                            // is needed to distinguish withdraw/deposit
 
     @JsonProperty
     private double amount;
