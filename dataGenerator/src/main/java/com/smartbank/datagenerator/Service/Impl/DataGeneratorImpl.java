@@ -61,7 +61,7 @@ public class DataGeneratorImpl implements DataGenerator {
             n++;
             kafkaSender.sendTransaction(transaction);
         }
-        Thread.sleep(5000);
+        Thread.sleep(offlineLimit);
     }
 
     @Override

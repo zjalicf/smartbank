@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 public class KafkaSenders {
 
     @Value("${account.topic}")
-    private String ACCOUNT_TOPIC;
+    private String accountTopic;
 
     @Value("${transaction_request.topic}")
-    private String TRANSACTION_REQUEST_TOPIC;
+    private String transactionRequestTopic;
 
     @Autowired
     private KafkaTemplate<String, Account> accountKafkaTemplate;
@@ -23,10 +23,10 @@ public class KafkaSenders {
     private KafkaTemplate<String, Transaction> transactionKafkaTemplate;
 
     public void sendAccount(Account account) {
-        accountKafkaTemplate.send(ACCOUNT_TOPIC, account);
+        accountKafkaTemplate.send(accountTopic, account);
     }
 
     public void sendTransaction(Transaction transaction) {
-        transactionKafkaTemplate.send(TRANSACTION_REQUEST_TOPIC, transaction);
+        transactionKafkaTemplate.send(transactionRequestTopic, transaction);
     }
 }
