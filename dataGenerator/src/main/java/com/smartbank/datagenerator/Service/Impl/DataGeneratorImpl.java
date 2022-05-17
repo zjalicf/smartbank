@@ -12,10 +12,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class DataGeneratorImpl implements DataGenerator {
@@ -49,44 +46,40 @@ public class DataGeneratorImpl implements DataGenerator {
     }
 
     @Override
-    public void generateOfflineTransaction() {
+    public void generateOfflineTransaction() throws InterruptedException {
 
-        Runnable onlineRunnable = () -> {
-            int n = 0;
-            while (n != 3) {
-                Random random = new Random(1);
-                Transaction transaction = new Transaction(UUID.randomUUID(), UUID.randomUUID(), null,
-                        0.0, Status.WAITING, TransactionType.values()[random.nextInt()]); /* randomly sets transaction to be deposit or withdraw*/
-                n++;
-                kafkaSender.sendTransaction(transaction);
-            }
-        };
+        int n = 0;
+        while (n != 3) {
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(onlineRunnable, 0, offlineLimit, TimeUnit.MILLISECONDS);
+            int type = ThreadLocalRandom.current().nextInt(0, 1);
+            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+            Account senderAcc = ACCOUNT_LIST.get(sender);
+            double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
+
+            Transaction transaction = new Transaction(UUID.randomUUID(), senderAcc.getAccountId(), null,
+                    rounder(amount), Status.WAITING, TransactionType.values()[type]); /* randomly sets transaction to be deposit or withdraw*/
+            n++;
+            kafkaSender.sendTransaction(transaction);
+        }
+        Thread.sleep(5000);
     }
 
     @Override
     @DependsOn("insertAccounts")
-    public void generateOnlineTransaction() {
+    public void generateOnlineTransaction() throws InterruptedException {
 
-        System.out.println("online disabled");
-//        Runnable onlineRunnable = () -> {
-//            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
-//            int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
-//
-//            Account senderAcc = ACCOUNT_LIST.get(sender);
-//            Account receiverAcc = ACCOUNT_LIST.get(receiver);
-//            if (senderAcc.getAccountId() != receiverAcc.getAccountId()) {
-//                double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
-//                Transaction transaction = new Transaction(UUID.randomUUID(),
-//                        senderAcc.getAccountId(), receiverAcc.getAccountId(), rounder(amount), Status.WAITING, null);
-//                kafkaSender.sendTransaction(transaction);
-//            }
-//        };
-//
-//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-//        executor.scheduleAtFixedRate(onlineRunnable, 0, onlineLimit, TimeUnit.MILLISECONDS);
+        int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+        int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+
+        Account senderAcc = ACCOUNT_LIST.get(sender);
+        Account receiverAcc = ACCOUNT_LIST.get(receiver);
+        if (senderAcc.getAccountId() != receiverAcc.getAccountId()) {
+            double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
+            Transaction transaction = new Transaction(UUID.randomUUID(),
+                    senderAcc.getAccountId(), receiverAcc.getAccountId(), rounder(amount), Status.WAITING, null);
+            kafkaSender.sendTransaction(transaction);
+        }
+        Thread.sleep(onlineLimit);
     }
 
     public double rounder(double amount) {

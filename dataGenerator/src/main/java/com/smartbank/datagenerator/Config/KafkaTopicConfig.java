@@ -10,29 +10,29 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Value("${account.topic}")
-    private String accountTopic;
+    private String ACCOUNT_TOPIC;
 
     @Value("${account.topic}")
-    private String bank_workingTopic;
+    private String BANK_WORKING_TOPIC;
 
     @Value("${transaction_request.topic}")
-    private String transaction_requestTopic;
+    private String TRANSACTION_REQUEST_TOPIC;
 
     @Bean
     public NewTopic accountTopic() {
-        return TopicBuilder.name(accountTopic)
+        return TopicBuilder.name(ACCOUNT_TOPIC)
                 .build();
     }
 
     @Bean
     public NewTopic bankTopic() {
-        return TopicBuilder.name(bank_workingTopic)
+        return TopicBuilder.name(BANK_WORKING_TOPIC)
                 .build();
     }
 
     @Bean
     public NewTopic transactionRequestTopic() {
-        return TopicBuilder.name(transaction_requestTopic)
+        return TopicBuilder.name(TRANSACTION_REQUEST_TOPIC)
                 .build();
     }
 }

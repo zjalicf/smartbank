@@ -17,11 +17,11 @@ public class DataGeneratorController {
     DataGenerator dataGenerator;
 
     @PostConstruct
-    public void insert() throws ExecutionException, InterruptedException {
+    public void insertAccounts() throws ExecutionException, InterruptedException {
         dataGenerator.insertAccounts();
     }
 
-    @DependsOn("insert")
+    @DependsOn("insertAccounts")
     @PostConstruct
     public void sendOnlineTransaction() throws InterruptedException {
         dataGenerator.generateOnlineTransaction();

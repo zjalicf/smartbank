@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -39,8 +40,9 @@ public class KafkaListeners {
                 while (WORKING_CHECK) {
                     try {
                         dataGenerator.generateOfflineTransaction();
+                        LOGGER.info("Transaction sent");
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.log(Level.SEVERE, "Could not generate offline transaction", e);
                     }
                 }
             });
@@ -52,7 +54,7 @@ public class KafkaListeners {
                 LOGGER.info("Stopped: offlineTxWork");
                 OFFLINE_TX_WORK = null;
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Could not join OFFLINE_TX_WORK thread", e);
             }
         }
     }
