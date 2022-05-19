@@ -2,6 +2,7 @@ package com.smartbank.validation.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartbank.validation.Enum.Status;
+import com.smartbank.validation.Enum.TransactionType;
 
 import java.util.UUID;
 
@@ -23,14 +24,20 @@ public class Transaction {
     @JsonProperty
     private Status status;
 
+    @JsonProperty
+    private TransactionType transactionType;
+
     public Transaction() {}
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status) {
+    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status,
+                       TransactionType transactionType) {
+
         this.transactionId = transactionId;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
         this.status = status;
+        this.transactionType = transactionType;
     }
 
     public UUID getTransactionId() {
@@ -69,6 +76,14 @@ public class Transaction {
         this.status = status;
     }
 
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
     @Override
     public String toString() {
         return "TransactionRequest{" +
@@ -77,6 +92,7 @@ public class Transaction {
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +
                 ", status=" + status +
+                ", transactionType=" + transactionType +
                 '}';
     }
 }

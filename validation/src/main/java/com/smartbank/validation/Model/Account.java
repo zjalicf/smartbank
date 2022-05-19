@@ -42,9 +42,36 @@ public class Account {
         this.isActive = isActive;
     }
 
-    @Column("id")
     public UUID getId() {
         return id;
+    }
+
+    public UUID getClientId() {
+        return clientId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public Set<Transaction> getTransactionList() {
+        return transactionList;
+    }
+
+    public void setTransactionList(Set<Transaction> transactionList) {
+        this.transactionList = transactionList;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override
