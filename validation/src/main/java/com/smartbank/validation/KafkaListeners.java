@@ -5,21 +5,19 @@ import com.smartbank.validation.Model.Transaction;
 import com.smartbank.validation.Repository.AccountRepository;
 import com.smartbank.validation.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaListeners {
 
-    private static boolean proba = false;
+    private static boolean accountsInsertedCheck = false;
 
     @Autowired
     ValidationService validationService;
 
     @Autowired
-    AccountRepository accountService;
+    AccountRepository accountRepository;
 
     @KafkaListener (
             topics = "account",
@@ -27,20 +25,20 @@ public class KafkaListeners {
             containerFactory= "accountKafkaListenerContainerFactory"
     )
     void accountListener(Account account) {
-        proba = true;
-        accountService.save(account);
-        System.out.println(accountService.findAll());
+        accountsInsertedCheck = true;
+        accountRepository.save(account);
+        System.out.println(accountRepository.findAll());
     }
 
     @KafkaListener(
-            id= "transactionRequestListener",
+//            id= "transactionRequestListener",
 //            autoStartup = "false",
             topics = "transaction_request",
             groupId = "groupId",
             containerFactory= "transactionKafkaListenerContainerFactory"
     )
     void transactionRequestListener(Transaction transaction) {
-        if (proba) {
+        if (accountsInsertedCheck) {
             validationService.validate(transaction);
         }
     }

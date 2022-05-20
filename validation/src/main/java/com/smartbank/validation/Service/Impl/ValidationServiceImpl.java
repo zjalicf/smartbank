@@ -1,5 +1,6 @@
 package com.smartbank.validation.Service.Impl;
 
+import com.smartbank.validation.Enum.Status;
 import com.smartbank.validation.Enum.TransactionType;
 import com.smartbank.validation.KafkaSenders;
 import com.smartbank.validation.Model.Account;
@@ -22,14 +23,6 @@ public class ValidationServiceImpl implements ValidationService {
 
     @Autowired
     AccountRepository accountRepository;
-
-    /*
-        this.transactionId = transactionId;
-        this.requesterId = requesterId;
-        this.amount = amount;
-        this.status = status;
-        this.transactionType = transactionType;
-     */
 
     /**
      * Main validation method for both online and offline transactions.
@@ -84,23 +77,30 @@ public class ValidationServiceImpl implements ValidationService {
                     System.out.println("Account ammount: " + account.get().getAmount());
                     System.out.println("Transaction ammount: " + transaction.getAmount());
                     System.out.println("error");
+                    transaction.setStatus(Status.DECLINED);
 
                 } else if (account.isPresent() && (account.get().getAmount() <= transaction.getAmount() && saldo - transaction.getAmount() >= 0)) {
                     System.out.println("Account ammount: " + account.get().getAmount());
                     System.out.println("Transaction ammount: " + transaction.getAmount());
                     System.out.println("error");
+                    transaction.setStatus(Status.DECLINED);
 
                 } else if (account.isPresent() && (account.get().getAmount() >= transaction.getAmount() && saldo - transaction.getAmount() >= 0)) {
                     System.out.println("Account ammount: " + account.get().getAmount());
                     System.out.println("Transaction ammount: " + transaction.getAmount());
                     System.out.println("moze");
+                    transaction.setStatus(Status.APPROVED);
+                    //menja se amount na acc
                 }
             } else if (transaction.getTransactionType().equals(TransactionType.DEPOSIT)) {
                 System.out.println("deposit - moze");
+                transaction.setStatus(Status.APPROVED);
+                //menja se amount na acc
             }
         } else {
             System.out.println("izgleda receiver null - online");
         }
-//        kafkaSender.sendTransaction(transaction);
+        kafkaSender.sendTransactionResponse(transaction);
+        kafkaSender.sendTransaction(transaction);
     }
 }
