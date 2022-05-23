@@ -6,12 +6,16 @@ import com.smartbank.validation.Repository.AccountRepository;
 import com.smartbank.validation.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaListeners {
 
     private static boolean accountsInsertedCheck = false;
+
+    @Autowired
+    KafkaListenerEndpointRegistry registry;
 
     @Autowired
     ValidationService validationService;
@@ -25,22 +29,19 @@ public class KafkaListeners {
             containerFactory= "accountKafkaListenerContainerFactory"
     )
     void accountListener(Account account) {
-        accountsInsertedCheck = true;
+        registry.getListenerContainer("x1").start();
         accountRepository.save(account);
-        System.out.println(accountRepository.findAll());
     }
 
     @KafkaListener(
-//            id= "transactionRequestListener",
-//            autoStartup = "false",
+            id= "x1",
+            autoStartup = "false",
             topics = "transaction_request",
             groupId = "groupId",
             containerFactory= "transactionKafkaListenerContainerFactory"
     )
     void transactionRequestListener(Transaction transaction) {
-        if (accountsInsertedCheck) {
-            validationService.validate(transaction);
-        }
+        validationService.validate(transaction);
     }
 
     @KafkaListener(
@@ -49,6 +50,6 @@ public class KafkaListeners {
             containerFactory= "transactionKafkaListenerContainerFactory"
     )
     void transactionListener(Transaction transaction) {
-        System.out.println("2. Received transaction done:" + transaction);
+//        System.out.println("2. Received transaction done:" + transaction);
     }
 }

@@ -1,22 +1,34 @@
 package com.smartbank.validation.Service.Impl;
 
+import com.smartbank.validation.Config.CassandraConfig;
 import com.smartbank.validation.Enum.Status;
 import com.smartbank.validation.Enum.TransactionType;
 import com.smartbank.validation.KafkaSenders;
 import com.smartbank.validation.Model.Account;
+import com.smartbank.validation.Model.Saldo;
 import com.smartbank.validation.Model.Transaction;
 import com.smartbank.validation.Repository.AccountRepository;
+import com.smartbank.validation.Repository.SaldoRepository;
 import com.smartbank.validation.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 @Service
 public class ValidationServiceImpl implements ValidationService {
+
+    private static Logger LOGGER = Logger.getLogger(String.valueOf(ValidationServiceImpl.class));
+
+    @Autowired
+    SaldoRepository saldoRepository;
 
     @Autowired
     KafkaSenders kafkaSender;
@@ -24,83 +36,84 @@ public class ValidationServiceImpl implements ValidationService {
     @Autowired
     AccountRepository accountRepository;
 
-    /**
-     * Main validation method for both online and offline transactions.
-     *
-     * Algorithm:
-     * 1. We determine if the incoming transaction is offline or online by
-     *    checking field requesterId for null
-     *
-     * 2. We check transaction type (WITHDRAW, DEPOSIT)
-     *
-     *    2a. If transaction is of type WITHDRAW:
-     *        -> check current saldo in redis and amount of account in cassandra:
-     *
-     *        2aa. In case of saldo resulting < 0 after the transaction OR
-     *             request amount < ammount on account after the transaction:
-     *              -> set the status field to DECLINED,
-     *              -> send transaction to TransactionResponseTopic
-     *
-     *        2ab. In case of saldo resulting > 0 after the transaction AND
-     *             request amount < ammount on account after the transaction:
-     *              -> set the status field to DECLINED,
-     *              -> send transaction to TransactionResponseTopic
-     *
-     *        2ac. In case of saldo resulting > 0 after the transaction AND
-     *             request amount > ammount on account after the transaction:
-     *              -> set the status field to APPROVED,
-     *              -> update saldo in redis,
-     *              -> send SaldoUpdate event to proper KafkaTopic,
-     *              -> send transaction to TransactionResponseTopic,
-     *              -> send transaction to TransactionTopic
-     *
-     *    2b. If transaction is of type DEPOSIT:
-     *        -> set the status field to APPROVED since no checks are needed,
-     *        -> update saldo in redis,
-     *        -> send SaldoUpdate event to proper KafkaTopic,
-     *        -> send transaction to TransactionResponseTopic,
-     *        -> send transaction to TransactionTopic
-     *
-     * @param  transaction  transaction recieved from KafkaListener (topic TransactionRequest)
-     *
-     */
     @Override
     public void validate(Transaction transaction) {
 
-        double saldo = 9999999.0; // temp umesto redisa
+        double accountAmount = 0;
+        double transactionAmount = 0;
+        double currentSaldo = 0;
+
+        Optional<Saldo> saldo = saldoRepository.findById("saldo");
+        Optional<Account> account = accountRepository.findById(transaction.getRequesterId());
+
         if (transaction.getReceiverId() == null) {
+
+            if (account.isPresent() && saldo.isPresent()) {
+                accountAmount = account.get().getAmount();
+                transactionAmount = transaction.getAmount();
+                currentSaldo = saldo.get().getSaldo();
+            } else {
+                return; // handling
+            }
+
             if (transaction.getTransactionType().equals(TransactionType.WITHDRAW)) {
 
-                Optional<Account> account = accountRepository.findById(transaction.getRequesterId());
+                if (accountAmount >= transaction.getAmount() && currentSaldo - transactionAmount >= 0) {
+                    LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
 
-                if (account.isPresent() && (account.get().getAmount() <= transaction.getAmount() || saldo - transaction.getAmount() <= 0)) {
-                    System.out.println("Account ammount: " + account.get().getAmount());
-                    System.out.println("Transaction ammount: " + transaction.getAmount());
-                    System.out.println("error");
-                    transaction.setStatus(Status.DECLINED);
+                    LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
+                    account.get().setAmount(accountAmount - transactionAmount);
+                    accountRepository.save(account.get());
 
-                } else if (account.isPresent() && (account.get().getAmount() <= transaction.getAmount() && saldo - transaction.getAmount() >= 0)) {
-                    System.out.println("Account ammount: " + account.get().getAmount());
-                    System.out.println("Transaction ammount: " + transaction.getAmount());
-                    System.out.println("error");
-                    transaction.setStatus(Status.DECLINED);
+                    LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
+                    saldo.get().setSaldo(currentSaldo - transactionAmount);
+                    saldoRepository.save(saldo.get());
 
-                } else if (account.isPresent() && (account.get().getAmount() >= transaction.getAmount() && saldo - transaction.getAmount() >= 0)) {
-                    System.out.println("Account ammount: " + account.get().getAmount());
-                    System.out.println("Transaction ammount: " + transaction.getAmount());
-                    System.out.println("moze");
                     transaction.setStatus(Status.APPROVED);
-                    //menja se amount na acc
+                    kafkaSender.sendTransaction(transaction);
+
+                    //temp check
+                    Optional<Account> acc = accountRepository.findById(account.get().getId());
+                    //
+                    LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
+                    LOGGER.log(Level.INFO, "Now amount is: " + acc.get().getAmount());
+                    System.out.println("----------------------------------------------------------");
+
+                    //temp
+                    Optional<Saldo> saldox = saldoRepository.findById("saldo");
+                    //
+                    LOGGER.log(Level.INFO, "Now saldo is: " + saldox.get().getSaldo());
+
+                } else {
+                    LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                    LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
+                    LOGGER.log(Level.INFO, "declined");
+                    transaction.setStatus(Status.DECLINED);
                 }
+
             } else if (transaction.getTransactionType().equals(TransactionType.DEPOSIT)) {
-                System.out.println("deposit - moze");
+
+                LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
+
+                LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
+                account.get().setAmount(accountAmount + transactionAmount);
+                accountRepository.save(account.get());
+
+                LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
+                saldo.get().setSaldo(currentSaldo + transactionAmount);
+                saldoRepository.save(saldo.get());
+
                 transaction.setStatus(Status.APPROVED);
-                //menja se amount na acc
+                kafkaSender.sendTransaction(transaction);
+
+                //temp check
+                Optional<Account> acc = accountRepository.findById(account.get().getId());
+                //
+                LOGGER.log(Level.INFO, "Now amount is: " + acc.get().getAmount());
             }
         } else {
-            System.out.println("izgleda receiver null - online");
+            System.out.println("izgleda receiver nije null - online");
         }
         kafkaSender.sendTransactionResponse(transaction);
-        kafkaSender.sendTransaction(transaction);
     }
 }
