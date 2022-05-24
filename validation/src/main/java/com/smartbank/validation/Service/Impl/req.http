@@ -1,2 +1,0 @@
-POST http://localhost:8082/bank/start
-Content-Type: application/json

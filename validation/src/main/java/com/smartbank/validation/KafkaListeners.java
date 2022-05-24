@@ -29,12 +29,12 @@ public class KafkaListeners {
             containerFactory= "accountKafkaListenerContainerFactory"
     )
     void accountListener(Account account) {
-        registry.getListenerContainer("x1").start();
+        registry.getListenerContainer("transactionReqListener").start();
         accountRepository.save(account);
     }
 
     @KafkaListener(
-            id= "x1",
+            id= "transactionReqListener",
             autoStartup = "false",
             topics = "transaction_request",
             groupId = "groupId",
@@ -42,14 +42,5 @@ public class KafkaListeners {
     )
     void transactionRequestListener(Transaction transaction) {
         validationService.validate(transaction);
-    }
-
-    @KafkaListener(
-            topics = "transaction",
-            groupId = "groupId",
-            containerFactory= "transactionKafkaListenerContainerFactory"
-    )
-    void transactionListener(Transaction transaction) {
-//        System.out.println("2. Received transaction done:" + transaction);
     }
 }

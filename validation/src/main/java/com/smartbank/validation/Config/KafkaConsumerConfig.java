@@ -4,7 +4,6 @@ package com.smartbank.validation.Config;
 import com.smartbank.validation.Model.Account;
 import com.smartbank.validation.Model.Transaction;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -73,29 +72,6 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, Account> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(accountConsumerFactory());
-        return factory;
-    }
-
-    //Config 3 - saldo
-    public Map<String, Object> saldoConsumerConfig() {
-        HashMap<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class); //za sad String
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, IntegerDeserializer.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        return props;
-    }
-
-    @Bean
-    public ConsumerFactory<String, Integer> saldoConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(saldoConsumerConfig());
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Integer> saldoKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Integer> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(saldoConsumerFactory());
         return factory;
     }
 }

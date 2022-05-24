@@ -14,7 +14,6 @@ import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.data.cassandra.core.convert.CassandraConverter;
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
-import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 @Configuration
@@ -58,14 +57,13 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         return sessionFactory;
     }
 
-    @Bean
-    @Primary
-    public CassandraMappingContext mappingContext(CqlSession cqlSession) {
-
-        CassandraMappingContext mappingContext = new CassandraMappingContext();
-//        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cqlSession));
-        return mappingContext;
-    }
+//    @Bean
+//    @Primary
+//    public CassandraMappingContext mappingContext(CqlSession cqlSession) {
+//
+//        //        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cqlSession));
+//        return new CassandraMappingContext();
+//    }
 
     @Bean
     @Primary
