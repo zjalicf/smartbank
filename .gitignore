@@ -11,3 +11,5 @@ target/
 *.ipr
 
 .mvn
+validation/mvnw
+validation/mvnw.cmd
