@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class KafkaListeners {
 
-    private static boolean accountsInsertedCheck = false;
-
     @Autowired
     KafkaListenerEndpointRegistry registry;
 
@@ -29,8 +27,8 @@ public class KafkaListeners {
             containerFactory= "accountKafkaListenerContainerFactory"
     )
     void accountListener(Account account) {
-        registry.getListenerContainer("transactionReqListener").start();
         accountRepository.save(account);
+        registry.getListenerContainer("transactionReqListener").start();
     }
 
     @KafkaListener(

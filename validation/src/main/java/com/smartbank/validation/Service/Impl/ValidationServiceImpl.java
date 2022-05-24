@@ -52,12 +52,12 @@ public class ValidationServiceImpl implements ValidationService {
 
             LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
 
-            if (transaction.getTransactionType().equals(TransactionType.WITHDRAW)) {
+            if (TransactionType.WITHDRAW.equals(transaction.getTransactionType())) {
 
                 if (accountAmount >= transaction.getAmount() && currentSaldo - transactionAmount >= 0) {
                     LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-                    LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
-                    LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
+                    LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                    LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
 
                     transaction.setStatus(Status.APPROVED);
                     kafkaSender.sendTransaction(transaction);
@@ -67,14 +67,14 @@ public class ValidationServiceImpl implements ValidationService {
                     LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
                     LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
                     LOGGER.log(Level.INFO, "declined");
+
                     transaction.setStatus(Status.DECLINED);
                 }
 
-            } else if (transaction.getTransactionType().equals(TransactionType.DEPOSIT)) {
-
-
-                LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
-                LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
+            } else if (TransactionType.DEPOSIT.equals(transaction.getTransactionType())) {
+                LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
+                LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
 
                 transaction.setStatus(Status.APPROVED);
                 kafkaSender.sendTransaction(transaction);
