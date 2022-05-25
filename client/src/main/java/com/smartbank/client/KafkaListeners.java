@@ -1,17 +1,13 @@
 package com.smartbank.client;
 
 import com.smartbank.client.Model.Account;
-import com.smartbank.client.Model.AmountUpdate;
-import com.smartbank.client.Model.Saldo;
 import com.smartbank.client.Model.Transaction;
 import com.smartbank.client.Repository.AccountRepository;
-import com.smartbank.client.Repository.SaldoRepository;
+import com.smartbank.client.Service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 @Component
 public class KafkaListeners {
@@ -23,9 +19,12 @@ public class KafkaListeners {
     @Autowired
     AccountRepository accountRepository;
 
+    @Autowired
+    ClientService clientService;
+
     @KafkaListener (
             topics = "account",
-            groupId = "groupId",
+            groupId = "account-client",
             containerFactory= "accountKafkaListenerContainerFactory"
     )
     void accountListener(Account account) {
@@ -37,10 +36,10 @@ public class KafkaListeners {
             id= "transactionListener",
             autoStartup = "false",
             topics = "transaction",
-            groupId = "groupId",
+            groupId = "transaction-client",
             containerFactory= "transactionKafkaListenerContainerFactory"
     )
     void transactionRequestListener(Transaction transaction) {
-        System.out.println(transaction);
+        clientService.processTransaction(transaction);
     }
 }

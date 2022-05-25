@@ -18,12 +18,12 @@ import org.springframework.data.cassandra.repository.config.EnableCassandraRepos
 
 @Configuration
 @EnableCassandraRepositories(
-        basePackages = "com.smartbank.validation.Repository")
+        basePackages = "com.smartbank.client.Repository")
 public class CassandraConfig extends AbstractCassandraConfiguration {
 
     @Override
     protected String getKeyspaceName() {
-        return "smartbank";
+        return "smartbank2";
     }
 
     @Override
@@ -56,14 +56,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         sessionFactory.setSchemaAction(SchemaAction.NONE);
         return sessionFactory;
     }
-
-//    @Bean
-//    @Primary
-//    public CassandraMappingContext mappingContext(CqlSession cqlSession) {
-//
-//        //        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cqlSession));
-//        return new CassandraMappingContext();
-//    }
 
     @Bean
     @Primary
