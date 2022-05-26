@@ -92,4 +92,18 @@ public class ClientServiceImpl implements ClientService {
             System.out.println("izgleda receiver nije null - online");
         }
     }
+
+    @Override
+    public void updateSaldo(Saldo saldo) {
+        saldoRepository.save(saldo);
+    }
+
+    @Override
+    public void updateAccountAmount(AmountUpdate amountUpdate) {
+        Optional<Account> account = accountRepository.findById(amountUpdate.getAccountId());
+        if (account.isPresent()) {
+            account.get().setAmount(amountUpdate.getAmount());
+            accountRepository.save(account.get());
+        }
+    }
 }
