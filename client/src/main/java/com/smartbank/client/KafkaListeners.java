@@ -1,6 +1,8 @@
 package com.smartbank.client;
 
 import com.smartbank.client.Model.Account;
+import com.smartbank.client.Model.AmountUpdate;
+import com.smartbank.client.Model.Saldo;
 import com.smartbank.client.Model.Transaction;
 import com.smartbank.client.Repository.AccountRepository;
 import com.smartbank.client.Service.ClientService;
@@ -41,5 +43,23 @@ public class KafkaListeners {
     )
     void transactionRequestListener(Transaction transaction) {
         clientService.processTransaction(transaction);
+    }
+
+    @KafkaListener (
+            topics = "amount_update",
+            groupId = "account_update-client",
+            containerFactory= "amountUpdateKafkaListenerContainerFactory"
+    )
+    void amountUpdateListener(AmountUpdate amountUpdate) {
+        clientService.updateAccountAmount(amountUpdate);
+    }
+
+    @KafkaListener (
+            topics = "saldo_update",
+            groupId = "saldo_update-client",
+            containerFactory= "saldoUpdateKafkaListenerContainerFactory"
+    )
+    void saldoUpdateListener(Saldo saldo) {
+        clientService.updateSaldo(saldo);
     }
 }

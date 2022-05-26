@@ -8,6 +8,8 @@ public class Saldo {
     private String id;
     private double saldo;
 
+    public Saldo() {}
+
     public Saldo(String id, double saldo) {
         this.id = id;
         this.saldo = saldo;
