@@ -34,17 +34,6 @@ public class KafkaListeners {
         registry.getListenerContainer("transactionListener").start();
     }
 
-    @KafkaListener(
-            id= "transactionListener",
-            autoStartup = "false",
-            topics = "transaction",
-            groupId = "transaction-client",
-            containerFactory= "transactionKafkaListenerContainerFactory"
-    )
-    void transactionRequestListener(Transaction transaction) {
-        clientService.processTransaction(transaction);
-    }
-
     @KafkaListener (
             topics = "amount_update",
             groupId = "account_update-client",

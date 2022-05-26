@@ -10,6 +10,8 @@ public class AmountUpdate {
     private UUID accountId;
     private double amount;
 
+    public AmountUpdate() {}
+
     public AmountUpdate(UUID accountId, double amount) {
         this.accountId = accountId;
         this.amount = amount;

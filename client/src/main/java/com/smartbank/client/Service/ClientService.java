@@ -1,6 +1,5 @@
 package com.smartbank.client.Service;
 
-import com.smartbank.client.Model.Account;
 import com.smartbank.client.Model.AmountUpdate;
 import com.smartbank.client.Model.Saldo;
 import com.smartbank.client.Model.Transaction;

@@ -26,32 +26,7 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    //Config 1 - transactions
-    public Map<String, Object> transactionConsumerConfig() {
-        HashMap<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Transaction.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        return props;
-    }
-
-    @Bean
-    public ConsumerFactory<String, Transaction> transactionConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(transactionConsumerConfig());
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Transaction> transactionKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Transaction> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(transactionConsumerFactory());
-        return factory;
-    }
-
-    //Config 2 - account
+    //Config 1 - account
     public Map<String, Object> accountConsumerConfig() {
         HashMap<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -77,7 +52,7 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    //Config 3 - saldoUpdate
+    //Config 2 - saldoUpdate
     public Map<String, Object> saldoUpdateConsumerConfig() {
         HashMap<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -103,7 +78,7 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    //Config 4 -amountUpdate
+    //Config 3 - amountUpdate
     public Map<String, Object> amountUpdateConsumerConfig() {
         HashMap<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);

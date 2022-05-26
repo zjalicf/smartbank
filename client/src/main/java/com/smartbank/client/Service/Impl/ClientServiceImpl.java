@@ -1,7 +1,6 @@
 package com.smartbank.client.Service.Impl;
 
 import com.smartbank.client.Enum.TransactionType;
-import com.smartbank.client.KafkaSenders;
 import com.smartbank.client.Model.Account;
 import com.smartbank.client.Model.AmountUpdate;
 import com.smartbank.client.Model.Saldo;
@@ -23,9 +22,6 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     SaldoRepository saldoRepository;
-
-    @Autowired
-    KafkaSenders kafkaSender;
 
     @Autowired
     AccountRepository accountRepository;
@@ -64,11 +60,6 @@ public class ClientServiceImpl implements ClientService {
                 LOGGER.log(Level.INFO, "Now saldo is: " + account.get().getAmount());
                 saldoRepository.save(saldo.get());
 
-                AmountUpdate amountUpdate = new AmountUpdate(account.get().getId(), account.get().getAmount());
-
-                kafkaSender.amountUpdateTopic(Optional.of(amountUpdate));
-                kafkaSender.sendSaldoUpdate(saldo);
-
             } else if (transaction.getTransactionType().equals(TransactionType.DEPOSIT)) {
 
                 LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
@@ -82,11 +73,6 @@ public class ClientServiceImpl implements ClientService {
                 saldo.get().setSaldo(currentSaldo + transactionAmount);
                 LOGGER.log(Level.INFO, "Now saldo is: " + account.get().getAmount());
                 saldoRepository.save(saldo.get());
-
-                AmountUpdate amountUpdate = new AmountUpdate(account.get().getId(), account.get().getAmount());
-
-                kafkaSender.amountUpdateTopic(Optional.of(amountUpdate));
-                kafkaSender.sendSaldoUpdate(saldo);
             }
         } else {
             System.out.println("izgleda receiver nije null - online");
