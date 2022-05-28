@@ -34,7 +34,6 @@ public class Account {
 
     public UUID getId() {
         return id;
-    }
 
     public UUID getClientId() {
         return clientId;
