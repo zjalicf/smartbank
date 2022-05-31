@@ -11,6 +11,5 @@ target/
 *.ipr
 lib/
 .mvn
-.iml
-mvnw
-mvnw.cmd
+validation/mvnw
+validation/mvnw.cmd

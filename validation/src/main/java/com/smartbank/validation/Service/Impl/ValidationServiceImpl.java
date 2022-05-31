@@ -35,41 +35,45 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public void validate(Transaction transaction) {
 
-        UUID accountId;
-        double accountAmount;
+        UUID requesterAccountId;
+        UUID receiverAccountId;
+        double requesterAccountAmount;
+        double receiverAccountAmount;
         double transactionAmount;
         double currentSaldo;
 
         Optional<Saldo> saldo = saldoRepository.findById("saldo");
-        Optional<Account> account = accountRepository.findById(transaction.getRequesterId());
+        Optional<Account> requesterAccount = accountRepository.findById(transaction.getRequesterId());
+        Optional<Account> receiverAccount = accountRepository.findById(transaction.getReceiverId());
+
+        if (requesterAccount.isPresent() && receiverAccount.isPresent() && saldo.isPresent()) {
+            requesterAccountId = requesterAccount.get().getId();
+            receiverAccountId =  receiverAccount.get().getId();
+            requesterAccountAmount = requesterAccount.get().getAmount();
+            receiverAccountAmount = receiverAccount.get().getAmount();
+            transactionAmount = transaction.getAmount();
+            currentSaldo = saldo.get().getSaldo();
+        } else {
+            return;
+        }
 
         if (transaction.getReceiverId() == null) {
 
-            if (account.isPresent() && saldo.isPresent()) {
-                accountId = account.get().getId();
-                accountAmount = account.get().getAmount();
-                transactionAmount = transaction.getAmount();
-                currentSaldo = saldo.get().getSaldo();
-            } else {
-                return; // handling
-            }
-
             LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-
             if (TransactionType.WITHDRAW.equals(transaction.getTransactionType())) {
 
-                if (accountAmount >= transaction.getAmount() && currentSaldo - transactionAmount >= 0) {
+                if (requesterAccountAmount >= transaction.getAmount() && currentSaldo - transactionAmount >= 0) {
                     LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-                    LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                    LOGGER.log(Level.INFO, "Account ammount: " + requesterAccountAmount);
                     LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
 
                     transaction.setStatus(Status.APPROVED);
                     kafkaSender.sendTransaction(transaction);
 
-                    account.get().setAmount(accountAmount - transactionAmount);
-                    accountRepository.save(account.get());
+                    requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
+                    accountRepository.save(requesterAccount.get());
 
-                    AmountUpdate amountUpdate = new AmountUpdate(accountId, accountAmount);
+                    AmountUpdate amountUpdate = new AmountUpdate(requesterAccountId, requesterAccountAmount);
                     kafkaSender.sendAmountUpdate(amountUpdate);
 
                     saldo.get().setSaldo(currentSaldo - transactionAmount);
@@ -80,7 +84,7 @@ public class ValidationServiceImpl implements ValidationService {
 
                 } else {
                     LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-                    LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                    LOGGER.log(Level.INFO, "Account ammount: " + requesterAccountAmount);
                     LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
                     LOGGER.log(Level.INFO, "declined");
 
@@ -89,16 +93,16 @@ public class ValidationServiceImpl implements ValidationService {
 
             } else if (TransactionType.DEPOSIT.equals(transaction.getTransactionType())) {
                 LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-                LOGGER.log(Level.INFO, "Account ammount: " + accountAmount);
+                LOGGER.log(Level.INFO, "Account ammount: " + requesterAccountAmount);
                 LOGGER.log(Level.INFO, "Transaction ammount: " + transactionAmount);
 
                 transaction.setStatus(Status.APPROVED);
                 kafkaSender.sendTransaction(transaction);
 
-                account.get().setAmount(accountAmount + transactionAmount);
-                accountRepository.save(account.get());
+                requesterAccount.get().setAmount(requesterAccountAmount + transactionAmount);
+                accountRepository.save(requesterAccount.get());
 
-                AmountUpdate amountUpdate = new AmountUpdate(accountId, accountAmount);
+                AmountUpdate amountUpdate = new AmountUpdate(requesterAccountId, requesterAccountAmount);
                 kafkaSender.sendAmountUpdate(amountUpdate);
 
                 saldo.get().setSaldo(currentSaldo + transactionAmount);
@@ -108,10 +112,28 @@ public class ValidationServiceImpl implements ValidationService {
                 kafkaSender.sendSaldoUpdate(saldoUpdate);
             }
         } else {
-            System.out.println("izgleda receiver nije null - online");
+
+            LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
+            if (requesterAccountAmount >= transaction.getAmount()) {
+
+                transaction.setStatus(Status.APPROVED);
+                kafkaSender.sendTransaction(transaction);
+
+                requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
+                accountRepository.save(requesterAccount.get());
+
+                receiverAccount.get().setAmount(receiverAccountAmount + transactionAmount);
+                accountRepository.save(receiverAccount.get());
+
+                AmountUpdate amountUpdateRequester = new AmountUpdate(requesterAccountId, requesterAccountAmount);
+                kafkaSender.sendAmountUpdate(amountUpdateRequester);
+
+                AmountUpdate amountUpdateReceiver = new AmountUpdate(receiverAccountId, receiverAccountAmount);
+                kafkaSender.sendAmountUpdate(amountUpdateReceiver);
+            } else {
+                transaction.setStatus(Status.DECLINED);
+            }
         }
         kafkaSender.sendTransactionResponse(transaction);
     }
-
-    //trebace update baza metoda
 }
