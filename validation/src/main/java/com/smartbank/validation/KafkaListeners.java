@@ -14,13 +14,13 @@ public class KafkaListeners {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
-    KafkaListenerEndpointRegistry registry;
+    private KafkaListenerEndpointRegistry registry;
 
     @Autowired
-    ValidationService validationService;
+    private ValidationService validationService;
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @KafkaListener (
             topics = "account",

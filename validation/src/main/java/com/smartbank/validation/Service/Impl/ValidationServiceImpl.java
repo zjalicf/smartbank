@@ -24,13 +24,13 @@ public class ValidationServiceImpl implements ValidationService {
     private static Logger LOGGER = Logger.getLogger(String.valueOf(ValidationServiceImpl.class));
 
     @Autowired
-    SaldoRepository saldoRepository;
+    private SaldoRepository saldoRepository;
 
     @Autowired
-    KafkaSenders kafkaSender;
+    private KafkaSenders kafkaSender;
 
     @Autowired
-    AccountRepository accountRepository;
+    private AccountRepository accountRepository;
 
     @Override
     public void validate(Transaction transaction) {
