@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,11 +37,11 @@ public class DataGeneratorImpl implements DataGenerator {
     @Override
     public void insertAccounts() {
         int n = 0;
-        while (n < 10) { //TODO: maxaccounts
-            List<Transaction> transationList = new ArrayList<>();
+        while (n < 4) { //TODO: maxaccounts
+
             Random random = new Random();
             double amount = (5000) * random.nextDouble();
-            Account a = new Account(UUID.randomUUID(), UUID.randomUUID(), amount, transationList, true);
+            Account a = new Account(UUID.randomUUID(), UUID.randomUUID(), amount, null, true);
             ACCOUNT_LIST.add(a);
             kafkaSender.sendAccount(a);
             n++;
@@ -46,7 +49,6 @@ public class DataGeneratorImpl implements DataGenerator {
         System.out.println("accounts sent");
     }
 
-    //TODO: da li ovde treba isto dependson accounts?
     @Override
     @DependsOn("insertAccounts")
     public void generateOfflineTransaction() throws InterruptedException {
@@ -59,16 +61,16 @@ public class DataGeneratorImpl implements DataGenerator {
             typeList.add(TransactionType.WITHDRAW);
             int randomType = ThreadLocalRandom.current().nextInt(0, 2);
 
-            int sender = ThreadLocalRandom.current().nextInt(0, 9 + 1); //TODO:maxaccounts
+            int sender = ThreadLocalRandom.current().nextInt(0, 3 + 1); //TODO:maxaccounts
             Account senderAcc = ACCOUNT_LIST.get(sender);
             double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
 
             Transaction transaction = new Transaction(UUID.randomUUID(), senderAcc.getId(), null,
-                    rounder(amount), Status.WAITING, typeList.get(randomType)); /* randomly sets transaction to be deposit or withdraw*/
+                    rounder(amount), Status.WAITING, typeList.get(randomType), Instant.now()); /* randomly sets transaction to be deposit or withdraw*/
             n++;
             kafkaSender.sendTransaction(transaction);
         }
-        Thread.sleep(56000);
+        Thread.sleep(5000);
     }
 
     @Override

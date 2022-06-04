@@ -1,22 +1,34 @@
 package com.smartbank.datagenerator.Model;
 
+import com.datastax.driver.mapping.EnumType;
+import com.datastax.driver.mapping.annotations.Column;
+import com.datastax.driver.mapping.annotations.Enumerated;
+import com.datastax.driver.mapping.annotations.UDT;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartbank.datagenerator.Enum.Status;
 import com.smartbank.datagenerator.Enum.TransactionType;
 
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
+
 
 public class Transaction {
 
     @JsonProperty
+
     private UUID transactionId;
 
     @JsonProperty
+
     private UUID requesterId;
 
     @JsonProperty
+
     private UUID receiverId; // null values indicates offline transaction, however status
-                            // is needed to distinguish withdraw/deposit
+    // is needed to distinguish withdraw/deposit
     @JsonProperty
     private double amount;
 
@@ -26,13 +38,21 @@ public class Transaction {
     @JsonProperty
     private TransactionType transactionType;
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status, TransactionType transactionType) {
+    @JsonProperty
+    private Instant time;
+
+    public Transaction() {}
+
+    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status,
+                       TransactionType transactionType, Instant time) {
+
         this.transactionId = transactionId;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
         this.status = status;
         this.transactionType = transactionType;
+        this.time = time;
     }
 
     public UUID getTransactionId() {
@@ -79,15 +99,24 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
+    public Instant getTime() {
+        return time;
+    }
+
+    public void setTime(Instant time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
-        return "Transaction{" +
+        return "TransactionRequest{" +
                 "transactionId=" + transactionId +
                 ", requesterId=" + requesterId +
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +
                 ", status=" + status +
                 ", transactionType=" + transactionType +
+                ", time = " + time +
                 '}';
     }
 }
