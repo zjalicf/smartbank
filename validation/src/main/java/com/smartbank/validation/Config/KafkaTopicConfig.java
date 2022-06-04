@@ -13,10 +13,10 @@ public class KafkaTopicConfig {
     private String accountTopic;
 
     @Value("${transaction_request.topic}")
-    private String transaction_requestTopic;
+    private String transactionRequestTopic;
 
     @Value("${transaction_response.topic}")
-    private String transaction_responseTopic;
+    private String transactionResponseTopic;
 
     @Value("${transaction.topic}")
     private String transactionTopic;
@@ -29,13 +29,13 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic transactionRequestTopic() {
-        return TopicBuilder.name(transaction_requestTopic)
+        return TopicBuilder.name(transactionRequestTopic)
                 .build();
     }
 
     @Bean
     public NewTopic transactionResponseTopic() {
-        return TopicBuilder.name(transaction_responseTopic)
+        return TopicBuilder.name(transactionResponseTopic)
                 .build();
     }
 
