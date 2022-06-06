@@ -2,16 +2,17 @@ package com.smartbank.client.Service.Impl;
 
 import com.smartbank.client.Enum.TransactionType;
 import com.smartbank.client.Model.Account;
-import com.smartbank.client.Model.AmountUpdate;
-import com.smartbank.client.Model.Saldo;
 import com.smartbank.client.Model.Transaction;
 import com.smartbank.client.Repository.AccountRepository;
-import com.smartbank.client.Repository.SaldoRepository;
+import com.smartbank.client.Repository.TransactionRepository;
 import com.smartbank.client.Service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,75 +22,65 @@ public class ClientServiceImpl implements ClientService {
     private static Logger LOGGER = Logger.getLogger(String.valueOf(ClientServiceImpl.class));
 
     @Autowired
-    SaldoRepository saldoRepository;
+    AccountRepository accountRepository;
 
     @Autowired
-    AccountRepository accountRepository;
+    private TransactionRepository transactionRepository;
 
     @Override
     public void processTransaction(Transaction transaction) {
 
-        double accountAmount;
+        double requesterAccountAmount;
+        double receiverAccountAmount;
         double transactionAmount;
-        double currentSaldo;
 
-        Optional<Saldo> saldo = saldoRepository.findById("saldo");
-        Optional<Account> account = accountRepository.findById(transaction.getRequesterId());
+        Optional<Account> requesterAccount = accountRepository.findById(transaction.getRequesterId());
+
+        if (requesterAccount.isPresent()) {
+            requesterAccountAmount = requesterAccount.get().getAmount();
+            transactionAmount = transaction.getAmount();
+        } else {
+            return; // handling
+        }
+
+        LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
 
         if (transaction.getReceiverId() == null) {
 
-            if (account.isPresent() && saldo.isPresent()) {
-                accountAmount = account.get().getAmount();
-                transactionAmount = transaction.getAmount();
-                currentSaldo = saldo.get().getSaldo();
-            } else {
-                return; // handling
-            }
-
             if (transaction.getTransactionType().equals(TransactionType.WITHDRAW)) {
+                requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
+                accountRepository.save(requesterAccount.get());
 
-                LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
-
-                LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
-                account.get().setAmount(accountAmount - transactionAmount);
-                LOGGER.log(Level.INFO, "Now amount is: " + account.get().getAmount());
-                accountRepository.save(account.get());
-
-                LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
-                saldo.get().setSaldo(currentSaldo - transactionAmount);
-                LOGGER.log(Level.INFO, "Now saldo is: " + account.get().getAmount());
-                saldoRepository.save(saldo.get());
+                transactionRepository.save(transaction);
+                LOGGER.log(Level.INFO, "transaction saved");
 
             } else if (transaction.getTransactionType().equals(TransactionType.DEPOSIT)) {
 
-                LOGGER.log(Level.INFO, String.valueOf(transaction.getTransactionType()));
+                requesterAccount.get().setAmount(requesterAccountAmount + transactionAmount);
+                accountRepository.save(requesterAccount.get());
 
-                LOGGER.log(Level.INFO, "Was amount is: " + account.get().getAmount());
-                account.get().setAmount(accountAmount + transactionAmount);
-                LOGGER.log(Level.INFO, "Now amount is: " + account.get().getAmount());
-                accountRepository.save(account.get());
+                transactionRepository.save(transaction);
+                LOGGER.log(Level.INFO, "transaction saved");
 
-                LOGGER.log(Level.INFO, "Was saldo is: " + saldo.get().getSaldo());
-                saldo.get().setSaldo(currentSaldo + transactionAmount);
-                LOGGER.log(Level.INFO, "Now saldo is: " + account.get().getAmount());
-                saldoRepository.save(saldo.get());
+            } else {
+                Optional<Account> receiverAccount = accountRepository.findById(transaction.getReceiverId());
+
+                if (receiverAccount.isPresent()) {
+                    receiverAccountAmount = receiverAccount.get().getAmount();
+                    transactionAmount = transaction.getAmount();
+                } else {
+                    return;
+                }
+
+                requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
+                accountRepository.save(requesterAccount.get());
+
+                receiverAccount.get().setAmount(receiverAccountAmount + transactionAmount);
+                accountRepository.save(receiverAccount.get());
+
+                transactionRepository.save(transaction);
+                LOGGER.log(Level.INFO, "transaction saved");
             }
-        } else {
-            System.out.println("izgleda receiver nije null - online");
-        }
-    }
-
-    @Override
-    public void updateSaldo(Saldo saldo) {
-        saldoRepository.save(saldo);
-    }
-
-    @Override
-    public void updateAccountAmount(AmountUpdate amountUpdate) {
-        Optional<Account> account = accountRepository.findById(amountUpdate.getAccountId());
-        if (account.isPresent()) {
-            account.get().setAmount(amountUpdate.getAmount());
-            accountRepository.save(account.get());
         }
     }
 }

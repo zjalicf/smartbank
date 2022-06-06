@@ -3,7 +3,6 @@ package com.smartbank.validation.Config;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.data.UdtValue;
 import com.datastax.oss.driver.api.core.type.UserDefinedType;
-import com.datastax.oss.driver.api.core.type.codec.ExtraTypeCodecs;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
@@ -11,7 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.cassandra.SessionFactory;
-import org.springframework.data.cassandra.config.*;
+import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
+import org.springframework.data.cassandra.config.CqlSessionFactoryBean;
+import org.springframework.data.cassandra.config.SchemaAction;
+import org.springframework.data.cassandra.config.SessionFactoryFactoryBean;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.data.cassandra.core.convert.CassandraConverter;
@@ -50,7 +52,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
         return session;
     }
 
-
     @Bean
     @Primary
     public SessionFactoryFactoryBean sessionFactory(CqlSession session, CassandraConverter converter) {
@@ -68,18 +69,6 @@ public class CassandraConfig extends AbstractCassandraConfiguration {
                 .codecFor(transactionUdt);
         TransactionCodec transactionCodec = new TransactionCodec(innerCodec);
         ((MutableCodecRegistry) codecRegistry).register(transactionCodec);
-
-//        //setting up codec for transaction UDT in smartbank2 keyspace
-//        UserDefinedType transactionUdt2 = session.getMetadata().getKeyspace("smartbank2")
-//                .flatMap(ks -> ks.getUserDefinedType("transaction"))
-//                .orElseThrow(IllegalStateException::new);
-//
-//        TypeCodec<UdtValue> innerCodec2 = session.getContext()
-//                .getCodecRegistry()
-//                .codecFor(transactionUdt2);
-//
-//        TransactionCodec transactionCodec2 = new TransactionCodec(innerCodec2);
-//        ((MutableCodecRegistry) codecRegistry).register(transactionCodec2);
 
         sessionFactory.setSession(session);
         sessionFactory.setConverter(converter);

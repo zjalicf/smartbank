@@ -3,21 +3,26 @@ package com.smartbank.client.Model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartbank.client.Enum.Status;
 import com.smartbank.client.Enum.TransactionType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.cassandra.core.mapping.Column;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class Transaction {
 
     @JsonProperty
-    private UUID transactionId;
+    @Column("id")
+    private UUID id;
 
     @JsonProperty
-    private UUID requesterId;
+    @Column("requester_id")
+    private UUID requesterId; // weird bug it wont convert requesterId -> requester_id despite the @Column
 
     @JsonProperty
+    @Column("receiver_id")
     private UUID receiverId; // null values indicates offline transaction, however status
-                            // is needed to distinguish withdraw/deposit
-
+    // is needed to distinguish withdraw/deposit
     @JsonProperty
     private double amount;
 
@@ -25,23 +30,28 @@ public class Transaction {
     private Status status;
 
     @JsonProperty
+    @Column("transaction_type")
     private TransactionType transactionType;
+
+    @JsonProperty
+    private Instant time;
 
     public Transaction() {}
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status,
-                       TransactionType transactionType) {
+    public Transaction(UUID id, UUID requesterId, UUID receiverId, double amount, Status status,
+                       TransactionType transactionType, Instant time) {
 
-        this.transactionId = transactionId;
+        this.id = id;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
         this.status = status;
         this.transactionType = transactionType;
+        this.time = time;
     }
 
-    public UUID getTransactionId() {
-        return transactionId;
+    public UUID getId() {
+        return id;
     }
 
     public UUID getRequesterId() {
@@ -84,15 +94,24 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
+    public Instant getTime() {
+        return time;
+    }
+
+    public void setTime(Instant time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
         return "TransactionRequest{" +
-                "transactionId=" + transactionId +
+                "id=" + id +
                 ", requesterId=" + requesterId +
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +
                 ", status=" + status +
                 ", transactionType=" + transactionType +
+                ", time = " + time +
                 '}';
     }
 }

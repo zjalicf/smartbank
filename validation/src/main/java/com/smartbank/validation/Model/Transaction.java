@@ -1,25 +1,19 @@
 package com.smartbank.validation.Model;
 
-import com.datastax.driver.mapping.EnumType;
-import com.datastax.driver.mapping.annotations.Enumerated;
-import com.datastax.driver.mapping.annotations.UDT;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartbank.validation.Enum.Status;
 import com.smartbank.validation.Enum.TransactionType;
 import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.Element;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
-@UDT(keyspace = "smartbank", name = "transaction")
+//@UDT(keyspace = "smartbank", name = "transaction")
 public class Transaction {
 
     @JsonProperty
-    @Column("transaction_id")
-    private UUID transactionId;
+    @Column("id")
+    private UUID id;
 
     @JsonProperty
     @Column("requester_id")
@@ -44,10 +38,10 @@ public class Transaction {
 
     public Transaction() {}
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status,
+    public Transaction(UUID id, UUID requesterId, UUID receiverId, double amount, Status status,
                        TransactionType transactionType, Instant time) {
 
-        this.transactionId = transactionId;
+        this.id = id;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
@@ -56,8 +50,8 @@ public class Transaction {
         this.time = time;
     }
 
-    public UUID getTransactionId() {
-        return transactionId;
+    public UUID getId() {
+        return id;
     }
 
     public UUID getRequesterId() {
@@ -111,7 +105,7 @@ public class Transaction {
     @Override
     public String toString() {
         return "TransactionRequest{" +
-                "transactionId=" + transactionId +
+                "id=" + id +
                 ", requesterId=" + requesterId +
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +

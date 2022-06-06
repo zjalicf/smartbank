@@ -15,12 +15,6 @@ public class KafkaTopicConfig {
     @Value("${transaction.topic}")
     private String transactionTopic;
 
-    @Value("${saldo_update.topic}")
-    private String saldoUpdateTopic;
-
-    @Value("${amount_update.topic}")
-    private String amountUpdateTopic;
-
     @Bean
     public NewTopic accountTopic() {
         return TopicBuilder.name(accountTopic)
@@ -30,18 +24,6 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic transactionTopic() {
         return TopicBuilder.name(transactionTopic)
-                .build();
-    }
-
-    @Bean
-    public NewTopic saldoUpdateTopic() {
-        return TopicBuilder.name(saldoUpdateTopic)
-                .build();
-    }
-
-    @Bean
-    public NewTopic amountUpdateTopic() {
-        return TopicBuilder.name(amountUpdateTopic)
                 .build();
     }
 }

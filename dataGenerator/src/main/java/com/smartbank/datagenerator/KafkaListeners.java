@@ -45,6 +45,16 @@ public class KafkaListeners {
                         LOGGER.log(Level.SEVERE, "Could not generate offline transaction", e);
                     }
                 }
+//                int n = 0;
+//                while (n != 1) { // to change
+//                    try {
+//                        dataGenerator.generateOfflineTransaction();
+//                        LOGGER.info("Transaction sent");
+//                        n++;
+//                    } catch (InterruptedException e) {
+//                        LOGGER.log(Level.SEVERE, "Could not generate offline transaction", e);
+//                    }
+//                }
             });
             OFFLINE_TX_WORK.start();
         } else if (OFFLINE_TX_WORK != null && !WORKING.equals(data)) {

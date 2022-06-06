@@ -1,11 +1,6 @@
 package com.smartbank.validation.Config;
 
-import com.datastax.driver.core.UDTValue;
-import com.datastax.driver.core.UserType;
-import com.datastax.driver.core.exceptions.InvalidTypeException;
-import com.datastax.oss.driver.api.core.ProtocolVersion;
 import com.datastax.oss.driver.api.core.data.UdtValue;
-import com.datastax.oss.driver.api.core.type.DataType;
 import com.datastax.oss.driver.api.core.type.UserDefinedType;
 import com.datastax.oss.driver.api.core.type.codec.MappingCodec;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
@@ -15,15 +10,9 @@ import com.smartbank.validation.Enum.TransactionType;
 import com.smartbank.validation.Model.Transaction;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.apache.kafka.common.metrics.Stat;
 
-import java.nio.ByteBuffer;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class TransactionCodec extends MappingCodec<UdtValue, Transaction> {
 
@@ -47,7 +36,7 @@ public class TransactionCodec extends MappingCodec<UdtValue, Transaction> {
         Instant time = Instant.parse(String.valueOf(value.getInstant("time")));
 
         return new Transaction(
-                value.getUuid("transaction_id"),
+                value.getUuid("id"),
                 value.getUuid("requester_id"),
                 value.getUuid("receiver_id"),
                 value.getDouble("amount"),
@@ -60,7 +49,7 @@ public class TransactionCodec extends MappingCodec<UdtValue, Transaction> {
     @Override
     protected UdtValue outerToInner(@Nullable Transaction value) {
         return value == null ? null : getCqlType().newValue()
-                .setUuid("transaction_id", value.getTransactionId())
+                .setUuid("id", value.getId())
                 .setUuid("requester_id", value.getRequesterId())
                 .setUuid("receiver_id", value.getReceiverId())
                 .setDouble("amount", value.getAmount())

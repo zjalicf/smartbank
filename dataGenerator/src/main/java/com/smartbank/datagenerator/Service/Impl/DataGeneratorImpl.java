@@ -12,8 +12,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,7 +35,7 @@ public class DataGeneratorImpl implements DataGenerator {
     @Override
     public void insertAccounts() {
         int n = 0;
-        while (n < 4) { //TODO: maxaccounts
+        while (n < 2) { //TODO: maxaccounts
 
             Random random = new Random();
             double amount = (5000) * random.nextDouble();
@@ -46,7 +44,6 @@ public class DataGeneratorImpl implements DataGenerator {
             kafkaSender.sendAccount(a);
             n++;
         }
-        System.out.println("accounts sent");
     }
 
     @Override
@@ -54,14 +51,14 @@ public class DataGeneratorImpl implements DataGenerator {
     public void generateOfflineTransaction() throws InterruptedException {
 
         int n = 0;
-        while (n != 1) {
+        while (n != 3) {
 
             List<TransactionType> typeList = new ArrayList<>();
             typeList.add(TransactionType.DEPOSIT);
             typeList.add(TransactionType.WITHDRAW);
             int randomType = ThreadLocalRandom.current().nextInt(0, 2);
 
-            int sender = ThreadLocalRandom.current().nextInt(0, 3 + 1); //TODO:maxaccounts
+            int sender = ThreadLocalRandom.current().nextInt(0, 2); //TODO:maxaccounts
             Account senderAcc = ACCOUNT_LIST.get(sender);
             double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
 
@@ -70,26 +67,34 @@ public class DataGeneratorImpl implements DataGenerator {
             n++;
             kafkaSender.sendTransaction(transaction);
         }
-        Thread.sleep(5000);
+        Thread.sleep(10000);
     }
 
     @Override
     @DependsOn("insertAccounts")
     public void generateOnlineTransaction() throws InterruptedException {
 
-////        while (true) {
-//            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
-//            int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts + 1);
+//        while (true) {
+//            int sender = ThreadLocalRandom.current().nextInt(0, maxAccounts);
+//            int receiver =  ThreadLocalRandom.current().nextInt(0, maxAccounts);
 //
+//            List<TransactionType> typeList = new ArrayList<>();
+//            typeList.add(TransactionType.DEPOSIT);
+//            typeList.add(TransactionType.WITHDRAW);
+//
+//            int randomType = ThreadLocalRandom.current().nextInt(0, 2);
 //            Account senderAcc = ACCOUNT_LIST.get(sender);
 //            Account receiverAcc = ACCOUNT_LIST.get(receiver);
+//
 //            if (senderAcc.getId() != receiverAcc.getId()) {
 //                double amount =  ThreadLocalRandom.current().nextDouble(0, 5000 + 1);
 //                Transaction transaction = new Transaction(UUID.randomUUID(),
-//                        senderAcc.getId(), receiverAcc.getId(), rounder(amount), Status.WAITING, null);
+//                        senderAcc.getId(), receiverAcc.getId(), rounder(amount),
+//                        Status.WAITING, typeList.get(randomType), Instant.now());
 //                kafkaSender.sendTransaction(transaction);
-////            }
+//            }
 //            Thread.sleep(onlineLimit); //busy waiting
+        //popravi da moze 1-300
 //        }
     }
 

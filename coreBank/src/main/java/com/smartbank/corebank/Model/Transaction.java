@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Transaction {
 
     @JsonProperty
-    private UUID transactionId;
+    private UUID id;
 
     @JsonProperty
     private UUID requesterId;
@@ -29,10 +29,10 @@ public class Transaction {
 
     public Transaction() {}
 
-    public Transaction(UUID transactionId, UUID requesterId, UUID receiverId, double amount, Status status,
+    public Transaction(UUID id, UUID requesterId, UUID receiverId, double amount, Status status,
                        TransactionType transactionType) {
 
-        this.transactionId = transactionId;
+        this.id = id;
         this.requesterId = requesterId;
         this.receiverId = receiverId;
         this.amount = amount;
@@ -40,8 +40,8 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
-    public UUID getTransactionId() {
-        return transactionId;
+    public UUID getId() {
+        return id;
     }
 
     public UUID getRequesterId() {
@@ -87,7 +87,7 @@ public class Transaction {
     @Override
     public String toString() {
         return "TransactionRequest{" +
-                "transactionId=" + transactionId +
+                "id=" + id +
                 ", requesterId=" + requesterId +
                 ", receiverId=" + receiverId +
                 ", amount=" + amount +

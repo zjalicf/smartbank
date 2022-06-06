@@ -13,9 +13,7 @@ import com.smartbank.validation.Service.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +32,7 @@ public class ValidationServiceImpl implements ValidationService {
     @Autowired
     private AccountRepository accountRepository;
 
+
     @Override
     public void validate(Transaction transaction) {
 
@@ -41,8 +40,6 @@ public class ValidationServiceImpl implements ValidationService {
         UUID receiverAccountId;
         double requesterAccountAmount;
         double receiverAccountAmount;
-        Set<Transaction> requesterTransactionSet;
-        Set<Transaction> receiverTransactionSet;
         double transactionAmount;
         double currentSaldo;
 
@@ -52,7 +49,6 @@ public class ValidationServiceImpl implements ValidationService {
         if (requesterAccount.isPresent() && saldo.isPresent()) {
             requesterAccountId = requesterAccount.get().getId();
             requesterAccountAmount = requesterAccount.get().getAmount();
-            requesterTransactionSet = requesterAccount.get().getTransactionList();
             transactionAmount = transaction.getAmount();
             currentSaldo = saldo.get().getSaldo();
         } else {
@@ -74,11 +70,6 @@ public class ValidationServiceImpl implements ValidationService {
                     kafkaSender.sendTransaction(transaction);
 
                     requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
-                    if (requesterTransactionSet == null) {
-                        requesterTransactionSet = new HashSet<>();
-                    }
-                    requesterTransactionSet.add(transaction);
-                    requesterAccount.get().setTransactionList(requesterTransactionSet); // da vidimo
                     accountRepository.save(requesterAccount.get());
 
                     AmountUpdate amountUpdate = new AmountUpdate(requesterAccountId, requesterAccountAmount);
@@ -98,7 +89,6 @@ public class ValidationServiceImpl implements ValidationService {
 
                     transaction.setStatus(Status.DECLINED);
                 }
-
             } else if (TransactionType.DEPOSIT.equals(transaction.getTransactionType())) {
 
                 LOGGER.log(Level.INFO, "Account ammount: " + requesterAccountAmount);
@@ -109,11 +99,6 @@ public class ValidationServiceImpl implements ValidationService {
                 kafkaSender.sendTransaction(transaction);
 
                 requesterAccount.get().setAmount(requesterAccountAmount + transactionAmount);
-                if (requesterTransactionSet == null) {
-                    requesterTransactionSet = new HashSet<>();
-                }
-                requesterTransactionSet.add(transaction);
-                requesterAccount.get().setTransactionList(requesterTransactionSet); // da vidimo
                 accountRepository.save(requesterAccount.get());
 
                 AmountUpdate amountUpdate = new AmountUpdate(requesterAccountId, requesterAccountAmount);
@@ -131,7 +116,6 @@ public class ValidationServiceImpl implements ValidationService {
             if (receiverAccount.isPresent()) {
                 receiverAccountId =  receiverAccount.get().getId();
                 receiverAccountAmount = receiverAccount.get().getAmount();
-                receiverTransactionSet = receiverAccount.get().getTransactionList();
                 transactionAmount = transaction.getAmount();
             } else {
                 return;
@@ -147,19 +131,9 @@ public class ValidationServiceImpl implements ValidationService {
                 kafkaSender.sendTransaction(transaction);
 
                 requesterAccount.get().setAmount(requesterAccountAmount - transactionAmount);
-                if (requesterTransactionSet == null) {
-                    requesterTransactionSet = new HashSet<>();
-                }
-                requesterTransactionSet.add(transaction);
-                requesterAccount.get().setTransactionList(requesterTransactionSet); // da vidimo
                 accountRepository.save(requesterAccount.get());
 
                 receiverAccount.get().setAmount(receiverAccountAmount + transactionAmount);
-                if (receiverTransactionSet == null) {
-                    receiverTransactionSet = new HashSet<>();
-                }
-                receiverTransactionSet.add(transaction);
-                receiverAccount.get().setTransactionList(receiverTransactionSet); // da vidimo
                 accountRepository.save(receiverAccount.get());
 
                 AmountUpdate amountUpdateRequester = new AmountUpdate(requesterAccountId, requesterAccountAmount);

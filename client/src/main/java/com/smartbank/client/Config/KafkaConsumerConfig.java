@@ -2,8 +2,6 @@ package com.smartbank.client.Config;
 
 
 import com.smartbank.client.Model.Account;
-import com.smartbank.client.Model.AmountUpdate;
-import com.smartbank.client.Model.Saldo;
 import com.smartbank.client.Model.Transaction;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -52,56 +50,29 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    //Config 2 - saldoUpdate
-    public Map<String, Object> saldoUpdateConsumerConfig() {
+    //Config 2 - transaction
+    public Map<String, Object> transactionConsumerConfig() {
         HashMap<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Saldo.class);
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Transaction.class);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
         return props;
     }
 
     @Bean
-    public ConsumerFactory<String, Saldo> saldoUpdateConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(saldoUpdateConsumerConfig());
+    public ConsumerFactory<String, Transaction> transactionConsumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(transactionConsumerConfig());
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Saldo> saldoUpdateKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Saldo> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, Transaction> transactionKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Transaction> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(saldoUpdateConsumerFactory());
+        factory.setConsumerFactory(transactionConsumerFactory());
         return factory;
-    }
 
-    //Config 3 - amountUpdate
-    public Map<String, Object> amountUpdateConsumerConfig() {
-        HashMap<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, AmountUpdate.class);
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
-        return props;
     }
-
-    @Bean
-    public ConsumerFactory<String, AmountUpdate> amountUpdateConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(amountUpdateConsumerConfig());
-    }
-
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, AmountUpdate> amountUpdateKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, AmountUpdate> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(amountUpdateConsumerFactory());
-        return factory;
-    }
-
 }

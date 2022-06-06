@@ -17,6 +17,6 @@ public class KafkaListeners {
             containerFactory= "transactionKafkaListenerContainerFactory"
     )
     void transactionResponseListener(Transaction transaction) {
-        LOGGER.info("Your transaction with ID: " + transaction.getTransactionId() + " was " + transaction.getStatus());
+        LOGGER.info("Your transaction with ID: " + transaction.getId() + " was " + transaction.getStatus());
     }
 }
